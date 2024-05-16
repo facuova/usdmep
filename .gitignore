@@ -1,0 +1,7 @@
+# Archivos de bytecode de Python
+*.pyc
+__pycache__/
+
+# Directorio del entorno virtual
+env/
+pyvenv.cfg
