@@ -6,6 +6,7 @@
 
 import pandas as pd
 import openpyxl
+from data_cleaning.date_cleaning import convert_date_list
 
 AL30_FILE_PATH = './data/AL30.xlsx' 
 AL30D_FILE_PATH = './data/AL30D.xlsx'
@@ -28,9 +29,30 @@ al30d_df = pd.DataFrame(hoja_al30d.values,columns=titulos_al30d)
 al30_df = al30_df.drop(al30_df.index[0])
 al30d_df = al30d_df.drop(al30d_df.index[0])
 
-al30_df['fechaHora'] = pd.to_datetime(al30_df['fechaHora'], 
-                                      errors='coerce', format='%Y-%m-%dT%H:%M:%S.%f')
-al30d_df['fechaHora'] = pd.to_datetime(al30d_df['fechaHora'], 
-                                       errors='coerce', format='%Y-%m-%dT%H:%M:%S.%f')
+#Formato la columna fechaHora a tipo datetime
+al30_df['fechaHora'] = pd.to_datetime(
+    al30_df['fechaHora'],
+    errors='coerce',
+    format='%Y-%m-%dT%H:%M:%S.%f')
 
-print(al30d_df)
+al30d_df['fechaHora'] = pd.to_datetime(
+    al30d_df['fechaHora'],
+    errors='coerce',
+    format='%Y-%m-%dT%H:%M:%S.%f')
+
+#Agrupo df en una lista
+lista_df = [al30_df,al30d_df]
+
+#Ejecuto función de limpieza de fecha, para eliminar los datos intradiarios
+convert_date_list(lista_df)
+
+#Realizo merge
+merge_df = pd.merge(lista_df[0], lista_df[1], how='left', on='fechaHora')
+
+merge_df = merge_df.dropna(subset='fechaHora')
+
+df_final = merge_df[['fechaHora','ultimoPrecio_x','ultimoPrecio_y']]
+
+df_final['usd_mep'] = round(df_final['ultimoPrecio_x'] / df_final['ultimoPrecio_y'] ,2)
+
+print(df_final)
