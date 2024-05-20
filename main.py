@@ -48,11 +48,15 @@ convert_date_list(lista_df)
 
 #Realizo merge
 merge_df = pd.merge(lista_df[0], lista_df[1], how='left', on='fechaHora')
-
+#Elimino datos Nan
 merge_df = merge_df.dropna(subset='fechaHora')
-
+#Filtro merge_df con columnas que necesito
 df_final = merge_df[['fechaHora','ultimoPrecio_x','ultimoPrecio_y']]
-
+#Realizo cálculo para obtener cotización de dólar mep
 df_final['usd_mep'] = round(df_final['ultimoPrecio_x'] / df_final['ultimoPrecio_y'] ,2)
-
-print(df_final)
+#Renomabramos la columnas
+df_final = df_final.rename(columns={
+        'fechaHora': 'fecha',
+        'ultimoPrecio_x': 'al30',
+        'ultimoPrecio_y': 'al30d',
+        })
