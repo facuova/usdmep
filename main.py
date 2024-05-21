@@ -6,6 +6,7 @@
 
 import pandas as pd
 import openpyxl
+import numpy as np
 from data_cleaning.date_cleaning import convert_date_list
 
 AL30_FILE_PATH = './data/AL30.xlsx' 
@@ -48,15 +49,33 @@ convert_date_list(lista_df)
 
 #Realizo merge
 merge_df = pd.merge(lista_df[0], lista_df[1], how='left', on='fechaHora')
+
 #Elimino datos Nan
 merge_df = merge_df.dropna(subset='fechaHora')
-#Filtro merge_df con columnas que necesito
-df_final = merge_df[['fechaHora','ultimoPrecio_x','ultimoPrecio_y']]
+
+#Filtro merge_df con columnas que necesito y elimino datos Nan
+usdmep = merge_df[['fechaHora','ultimoPrecio_x','ultimoPrecio_y']]
+usdmep = usdmep.dropna(subset='ultimoPrecio_y')
+
 #Realizo cálculo para obtener cotización de dólar mep
-df_final['usd_mep'] = round(df_final['ultimoPrecio_x'] / df_final['ultimoPrecio_y'] ,2)
+usdmep['usdmep'] = round(usdmep['ultimoPrecio_x'] / usdmep['ultimoPrecio_y'] ,2)
 #Renomabramos la columnas
-df_final = df_final.rename(columns={
+usdmep = usdmep.rename(columns={
         'fechaHora': 'fecha',
         'ultimoPrecio_x': 'al30',
         'ultimoPrecio_y': 'al30d',
         })
+
+usdmep['fecha'] = pd.to_datetime(usdmep['fecha'])
+usdmep['usdmep'] = usdmep['usdmep'].astype(float)
+
+usdmep['mm5p'] = usdmep['usdmep'].rolling(window=5).mean()
+usdmep['mm20p'] = usdmep['usdmep'].rolling(window=20).mean()
+#Calculamos los retornos
+usdmep['retorno'] = np.log(usdmep['usdmep'] / usdmep['usdmep'].shift(1))
+usdmep = usdmep.drop(usdmep.index[0])
+#Calculamos la volatilidad
+usdmep['volHis5'] = usdmep['retorno'].rolling(window=5).std() * np.sqrt(260)
+usdmep['volHis20'] = usdmep['retorno'].rolling(window=20).std() * np.sqrt(260)
+
+print(usdmep.info())
