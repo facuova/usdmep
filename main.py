@@ -7,6 +7,7 @@
 import pandas as pd
 import openpyxl
 import numpy as np
+import matplotlib.pyplot as plt
 from data_cleaning.date_cleaning import convert_date_list
 
 AL30_FILE_PATH = './data/AL30.xlsx' 
@@ -59,7 +60,8 @@ usdmep = usdmep.dropna(subset='ultimoPrecio_y')
 
 #Realizo cálculo para obtener cotización de dólar mep
 usdmep['usdmep'] = round(usdmep['ultimoPrecio_x'] / usdmep['ultimoPrecio_y'] ,2)
-#Renomabramos la columnas
+
+#Renomabro la columnas y transformo los datos a su formato correcto
 usdmep = usdmep.rename(columns={
         'fechaHora': 'fecha',
         'ultimoPrecio_x': 'al30',
@@ -69,13 +71,26 @@ usdmep = usdmep.rename(columns={
 usdmep['fecha'] = pd.to_datetime(usdmep['fecha'])
 usdmep['usdmep'] = usdmep['usdmep'].astype(float)
 
+#Calculo promedios moviles 5 y 20 períodos
 usdmep['mm5p'] = usdmep['usdmep'].rolling(window=5).mean()
 usdmep['mm20p'] = usdmep['usdmep'].rolling(window=20).mean()
-#Calculamos los retornos
+#Calculo los retornos
 usdmep['retorno'] = np.log(usdmep['usdmep'] / usdmep['usdmep'].shift(1))
 usdmep = usdmep.drop(usdmep.index[0])
-#Calculamos la volatilidad
+#Calculo la volatilidad de 5 y 20 períodos
 usdmep['volHis5'] = usdmep['retorno'].rolling(window=5).std() * np.sqrt(260)
 usdmep['volHis20'] = usdmep['retorno'].rolling(window=20).std() * np.sqrt(260)
 
-print(usdmep.info())
+# Configuración del gráfico
+plt.figure(figsize=(10, 5))  # Tamaño del gráfico en pulgadas (800x400 píxeles)
+plt.plot(usdmep['fecha'],usdmep['usdmep'], linestyle='-')  # Graficar los datos
+plt.title('Gráfico de Precios')  # Título del gráfico
+plt.xlabel('Fecha')  # Etiqueta del eje x
+plt.ylabel('Precio')  # Etiqueta del eje y
+plt.xticks(rotation=45)  # Rotar las etiquetas del eje x para que sean legibles
+plt.grid(True)  # Mostrar cuadrícula en el gráfico
+
+# Ajustar diseño del gráfico
+plt.tight_layout()
+
+plt.savefig('./data/final/usd-mep_plot.png', dpi=300)
