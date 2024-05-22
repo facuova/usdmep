@@ -9,7 +9,7 @@ import openpyxl
 import numpy as np
 from data_cleaning.date_cleaning import convert_date_list
 from data_output.plot import plot_close
-from data_output.plot import plot_ma
+from data_output.plot import plot_line
 
 AL30_FILE_PATH = './data/AL30.xlsx' 
 AL30D_FILE_PATH = './data/AL30D.xlsx'
@@ -86,8 +86,9 @@ plot_close(usdmep,'USD MEP')
 
 COL_MA = ['usdmep','mm5p', 'mm20p']
 
-plot_ma(usdmep, COL_MA ,'Medias Móviles')
+plot_line(usdmep, COL_MA ,'Medias Móviles')
 
 COL_HV = ['volHis5','volHis20']
 
-plot_ma(usdmep, COL_HV ,'Volatilidad His')
+plot_line(usdmep, COL_HV ,'Volatilidad His')
+
