@@ -7,8 +7,9 @@
 import pandas as pd
 import openpyxl
 import numpy as np
-import matplotlib.pyplot as plt
 from data_cleaning.date_cleaning import convert_date_list
+from data_output.plot import plot_close
+from data_output.plot import plot_ma
 
 AL30_FILE_PATH = './data/AL30.xlsx' 
 AL30D_FILE_PATH = './data/AL30D.xlsx'
@@ -81,16 +82,12 @@ usdmep = usdmep.drop(usdmep.index[0])
 usdmep['volHis5'] = usdmep['retorno'].rolling(window=5).std() * np.sqrt(260)
 usdmep['volHis20'] = usdmep['retorno'].rolling(window=20).std() * np.sqrt(260)
 
-# Configuración del gráfico
-plt.figure(figsize=(10, 5))  # Tamaño del gráfico en pulgadas (800x400 píxeles)
-plt.plot(usdmep['fecha'],usdmep['usdmep'], linestyle='-')  # Graficar los datos
-plt.title('Gráfico de Precios')  # Título del gráfico
-plt.xlabel('Fecha')  # Etiqueta del eje x
-plt.ylabel('Precio')  # Etiqueta del eje y
-plt.xticks(rotation=45)  # Rotar las etiquetas del eje x para que sean legibles
-plt.grid(True)  # Mostrar cuadrícula en el gráfico
+plot_close(usdmep,'USD MEP')
 
-# Ajustar diseño del gráfico
-plt.tight_layout()
+COL_MA = ['usdmep','mm5p', 'mm20p']
 
-plt.savefig('./data/final/usd-mep_plot.png', dpi=300)
+plot_ma(usdmep, COL_MA ,'Medias Móviles')
+
+COL_HV = ['volHis5','volHis20']
+
+plot_ma(usdmep, COL_HV ,'Volatilidad His')
