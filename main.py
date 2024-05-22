@@ -82,13 +82,12 @@ usdmep = usdmep.drop(usdmep.index[0])
 usdmep['volHis5'] = usdmep['retorno'].rolling(window=5).std() * np.sqrt(260)
 usdmep['volHis20'] = usdmep['retorno'].rolling(window=20).std() * np.sqrt(260)
 
+
 plot_close(usdmep,'USD MEP')
 
 COL_MA = ['usdmep','mm5p', 'mm20p']
-
 plot_line(usdmep, COL_MA ,'Medias Móviles')
 
 COL_HV = ['volHis5','volHis20']
-
 plot_line(usdmep, COL_HV ,'Volatilidad His')
 
