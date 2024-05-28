@@ -85,7 +85,7 @@ historic_valotility(usdmep,5,'retorno',252)
 historic_valotility(usdmep,20,'retorno',252)
 
 #Gráfico de usd mep 
-plot_close(usdmep,'USD MEP')
+plot_close(usdmep,'usdmep')
 
 #Gráfico de cruce de medias
 COL_MA = ['usdmep','mm5p', 'mm20p']
