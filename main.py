@@ -6,7 +6,6 @@
 
 import pandas as pd
 import openpyxl
-import numpy as np
 from data_cleaning.date_cleaning import convert_date_list
 from data_output.plot import plot_close
 from data_output.plot import plot_line
@@ -82,14 +81,12 @@ quotes_return(usdmep,'usdmep')
 usdmep = usdmep.dropna(subset='retorno')
 
 #Calculo la volatilidad de 5 y 20 períodos
-#usdmep['volHis5'] = usdmep['retorno'].rolling(window=5).std() * np.sqrt(260)
-#usdmep['volHis20'] = usdmep['retorno'].rolling(window=20).std() * np.sqrt(260)
-print(usdmep.info())
 historic_valotility(usdmep,5,'retorno',252)
 historic_valotility(usdmep,20,'retorno',252)
+
 #Gráfico de usd mep 
 plot_close(usdmep,'USD MEP')
-print(usdmep.info())
+
 #Gráfico de cruce de medias
 COL_MA = ['usdmep','mm5p', 'mm20p']
 plot_line(usdmep, COL_MA ,'USD MEP')
