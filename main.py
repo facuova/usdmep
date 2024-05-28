@@ -10,8 +10,9 @@ import numpy as np
 from data_cleaning.date_cleaning import convert_date_list
 from data_output.plot import plot_close
 from data_output.plot import plot_line
+from data_analysis.functions import (moving_averge, quotes_return, historic_valotility)
 
-AL30_FILE_PATH = './data/AL30.xlsx' 
+AL30_FILE_PATH = './data/AL30.xlsx'
 AL30D_FILE_PATH = './data/AL30D.xlsx'
 
 al30_libro = openpyxl.load_workbook(filename=AL30_FILE_PATH)
@@ -72,22 +73,28 @@ usdmep = usdmep.rename(columns={
 usdmep['fecha'] = pd.to_datetime(usdmep['fecha'])
 usdmep['usdmep'] = usdmep['usdmep'].astype(float)
 
-#Calculo promedios moviles 5 y 20 períodos
-usdmep['mm5p'] = usdmep['usdmep'].rolling(window=5).mean()
-usdmep['mm20p'] = usdmep['usdmep'].rolling(window=20).mean()
-#Calculo los retornos
-usdmep['retorno'] = np.log(usdmep['usdmep'] / usdmep['usdmep'].shift(1))
-usdmep = usdmep.drop(usdmep.index[0])
+#Cálculo de promedios moviles 5 y 20 períodos
+moving_averge(usdmep,'usdmep',5)
+moving_averge(usdmep,'usdmep',20)
+
+#Cálculo de retornos
+quotes_return(usdmep,'usdmep')
+usdmep = usdmep.dropna(subset='retorno')
+
 #Calculo la volatilidad de 5 y 20 períodos
-usdmep['volHis5'] = usdmep['retorno'].rolling(window=5).std() * np.sqrt(260)
-usdmep['volHis20'] = usdmep['retorno'].rolling(window=20).std() * np.sqrt(260)
-
-
+#usdmep['volHis5'] = usdmep['retorno'].rolling(window=5).std() * np.sqrt(260)
+#usdmep['volHis20'] = usdmep['retorno'].rolling(window=20).std() * np.sqrt(260)
+print(usdmep.info())
+historic_valotility(usdmep,5,'retorno',252)
+historic_valotility(usdmep,20,'retorno',252)
+#Gráfico de usd mep 
 plot_close(usdmep,'USD MEP')
-
+print(usdmep.info())
+#Gráfico de cruce de medias
 COL_MA = ['usdmep','mm5p', 'mm20p']
-plot_line(usdmep, COL_MA ,'Medias Móviles')
+plot_line(usdmep, COL_MA ,'USD MEP')
 
+#Gráfico de volatilidad historica
 COL_HV = ['volHis5','volHis20']
 plot_line(usdmep, COL_HV ,'Volatilidad His')
 
