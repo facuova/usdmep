@@ -31,7 +31,7 @@ def quotes_return(df, columna):
             df(dataframe): DataFrame con cálculo de retornos incorporado
     """
     df['retorno'] = np.log(df[columna] / df[columna].shift(1))
-    df = df.dropna(subset='retorno')
+    
     return df
 
 
